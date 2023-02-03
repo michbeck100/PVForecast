@@ -112,7 +112,7 @@ class InfluxRepo:
         """
         IssueTime = None
         if not self._influx_V2:
-            client = InfluxDBClient(host=self._host, port=self._port, database=self._database, username=self._username, password=self._password)
+            client = InfluxDBClient(host=self._host, port=self._port, database=self._database, username=self._username, password=self._password, ssl=self._ssl, verify_ssl=self._verify_ssl)
             self._verifyDB(client)
             select = client.query("""SELECT Last("IssueTime") AS "IssueTime" FROM "forecast_log" WHERE "Table"='""" + table + """'""")
             for row in select.get_points():
@@ -205,7 +205,7 @@ class InfluxRepo:
 
             meas, field = self.config['Influx'].get(power_field).split('.')
 
-            client      = InfluxDBClient(host=self._posthost, port=self._port, database=self._postdatabase, username=self._username, password=self._password)
+            client      = InfluxDBClient(host=self._posthost, port=self._port, database=self._postdatabase, username=self._username, password=self._password, ssl=self._ssl, verify_ssl=self._verify_ssl)
             sql         = 'SELECT mean("' + field +'") AS "total_power" FROM "' + meas + '" WHERE time >= ' + "'" + startTime + "' AND time < '" + endTime + "' GROUP BY time(5m)"
             select      = client.query(sql)
             postDict    = []
