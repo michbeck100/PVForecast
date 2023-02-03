@@ -54,10 +54,15 @@ class InfluxRepo:
         self._token        = self.config['Influx'].get('token', None)
         self._org          = self.config['Influx'].get('org', None)
         self._influx_V2    = self.config['Influx'].getboolean('influx_v2', False)
+        self._verify_ssl = self.config['Influx'].getboolean('verify_ssl', True)
+        self._ssl = False
         try:
+            if self._host.startswith('https://'):
+                if not self._influx_V2: self._host = self._host.removeprefix('https://')
+                self._ssl = True
             if self._influx_V2:
                 if self._database is None: self._database = self.config['Influx'].get('bucket')
-                if not self._host.startswith('http://'): self._host = 'http://' + self._host
+                if not self._host.startswith('http://') and not self._host.startswith('https://'): self._host = 'http://' + self._host
             if self._database is None:
                 sys.tracebacklimit=0
                 raise Exception("Influx: No database (bucket) defined")
@@ -88,7 +93,7 @@ class InfluxRepo:
             df_log    = pd.DataFrame(data={'IssueTime': issueTime, 'Table': [data.SQLTable]}, index=[now_utc])
 
             if not self._influx_V2:
-                client    = DataFrameClient(host=self._host, port=self._port, database=self._database, username=self._username, password=self._password)
+                client    = DataFrameClient(host=self._host, port=self._port, database=self._database, username=self._username, password=self._password, ssl=self._ssl, verify_ssl=self._verify_ssl)
                 self._verifyDB(client)
                 client.write_points(df, data.SQLTable, retention_policy=self._retention)
                 client.write_points(df_log, 'forecast_log', tag_columns=['Table'])
