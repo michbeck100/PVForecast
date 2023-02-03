@@ -90,7 +90,7 @@ class InfluxRepo:
             if not self._influx_V2:
                 client    = DataFrameClient(host=self._host, port=self._port, database=self._database, username=self._username, password=self._password)
                 self._verifyDB(client)
-                client.write_points(df, data.SQLTable)
+                client.write_points(df, data.SQLTable, retention_policy=self._retention)
                 client.write_points(df_log, 'forecast_log', tag_columns=['Table'])
             else:
                 client    = InfluxDBClient_V2(url=self._host+":"+str(self._port), token=self._token, org=self._org)
