@@ -1,6 +1,6 @@
 FROM python:3
 
-ENV SCRIPT=SolCastLight.py
+ENV SCRIPT=PVForecasts.py
 ENV CRON="*/15 * * * *"
 
 RUN apt-get update && apt-get -y install cron
